@@ -62,3 +62,10 @@ def get_notes_id_by_username(username):
     notes = cursor.fetchall()
     connection.close()
     return notes
+
+def get_note_by_id(id):
+    connection, cursor = connect_to_db()
+    cursor.execute("SELECT username, note FROM Notes WHERE id = ?", [id])
+    note = cursor.fetchone()
+    connection.close()
+    return note
