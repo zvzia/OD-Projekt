@@ -3,9 +3,9 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 import markdown
 from collections import deque
 from passlib.hash import sha256_crypt
-import sqlite3
 
 from data_bese import *
+from services import *
 
 app = Flask(__name__)
 
@@ -61,6 +61,28 @@ def login():
         else:
             return "Nieprawidłowy login lub hasło", 401
 
+
+@app.route("/register", methods=["GET","POST"])
+def register():
+    if request.method == "GET":
+        return render_template("register_page.html")
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        password_retyped = request.form.get("password_retyped")
+        
+        if password == password_retyped:
+            #sprawdzanie siły hasła
+            if not chceck_if_user_exist(username):
+                password_encrypted = hash_password(password)
+                insert_user(username, password_encrypted)
+
+                user = user_loader(username)
+                login_user(user)
+                return redirect('/start_page')
+
+
+
 @app.route("/logout")
 def logout():
     logout_user()
@@ -68,7 +90,7 @@ def logout():
 
 @app.route("/start_page", methods=['GET'])
 @login_required
-def hello():
+def start():
     if request.method == 'GET':
         print(current_user.id)
         username = current_user.id

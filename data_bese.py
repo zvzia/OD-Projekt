@@ -30,7 +30,7 @@ def insert_user(username, password):
 
 def get_user_by_username(username):
     connection, cursor = connect_to_db()
-    cursor.execute("SELECT * FROM User WHERE username = ?", [username])
+    cursor.execute("SELECT username, password FROM User WHERE username = ?", [username])
     user = cursor.fetchone()
     connection.close()
     return user
