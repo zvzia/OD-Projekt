@@ -15,44 +15,43 @@ Do szyfrowania notatek zostanie wykorzystana biblioteka **PyCryptodrome** natomi
 
 
 ## Zastosowae rozwiązania
-1.	Rejestracja
+### 1.	Rejestracja
 
 Przy rejestracji wymagane jest podanie adresu e-mail, nazwy użytkownika oraz hasła. Hasło powinno spełniać określone wymagania, aby było wystarczająco silne.
 
 Hasło powinno:
-•	Składać się z co najmniej 10 znaków
-•	Zawierać zarówno małe jak i wielkie litery
-•	Zawierać co najmniej jedną cyfrę
-•	Zawierać co najmniej jeden znak specjalny
+- Składać się z co najmniej 10 znaków
+-	Zawierać zarówno małe jak i wielkie litery
+-	Zawierać co najmniej jedną cyfrę
+-	Zawierać co najmniej jeden znak specjalny
 
 Sprawdzane będzie również czy hasło znajduje się na liście najczęściej używanych haseł.
 
 W przypadku utraty hasła możliwa będzie zmiana hasła poprzez link wysłany na adres email.
 
-2.	Logowanie
+### 2.	Logowanie
 
 Przy logowaniu zostanie zastosowane opóźnienie oraz limit prób zalogowania. 
 
 Jeśli wystąpi podejrzanie duża liczba nieudanych prób zalogowania się, zostanie to odnotowane a użytkownik, na którego konto próbowano się zalogować zostanie poinformowany poprzez email.
 
-3.	Dodawanie notatek
+### 3.	Dodawanie notatek
 
 Aby dodać notatkę użytkownik musi posiadać konto oraz być zalogowany. 
 
 Notatki mogą zostać ostylowane:
+- Pogrubienie, pochylenie, podkreślenie tekstu
+- Dodanie nagłówka
+- Dodanie obrazka z zewnętrznego serwisu
+- Dodanie odnośnika
 
-*Pogrubienie, pochylenie, podkreślenie tekstu
-*Dodanie nagłówka
-*Dodanie obrazka z zewnętrznego serwisu
-*Dodanie odnośnika
-
-4.	Szyfrowanie notatek
+### 4.	Szyfrowanie notatek
 
 Notatka może zostać zaszyfrowana przy użyciu hasła. By odczytać zaszyfrowaną notatkę należy podać hasło którego się użyło do zaszyfrowania notatki.
 
 Notatka która została zaszyfrowana nie może zostać udostępniona.
 
-5.	Udostępnianie notatek 
+### 5.	Udostępnianie notatek 
 
 Użytkownik może udostępnić notatkę wybranemu innemu użytkownikowi lub publicznie.
 
