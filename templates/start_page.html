@@ -1,27 +1,33 @@
 <html>
     <body>
         <h1>Hello {{ username }}!</h1>
-
-        <form action={{ url_for('render') }} method="post">
-            <label for="markdown">Input some markdown:</label><br>
-            <textarea id="markdown" name="markdown" rows="20" cols="100"></textarea>
-            <br>
-            <input type="submit" value="Submit">
+        <form action={{ url_for('logout') }}>
+            <input type="submit" value="Log out" />
         </form>
+        <br>
 
+        
+        <h2> Your notes: </h2>
+        <a href="/add_note"><button>Add note</button></a>
         {% if notes|length > 0 %}
-        <h1> Your notes: </h1>
         <ul>
             {% for note in notes %}
-            <li><a href="{{ url_for('render') }}/{{note.0}}"> Note {{ loop.index }}</a></li>
+            <li><a href="/render/{{note.0}}"> Note: {{ note.1 }}</a></li>
             {% endfor %}
         </ul>
 
         {% endif %}
 
+        <br><br>
+        <h2> Shared to you: </h2>
+        {% if shared_notes|length > 0 %}
+        <ul>
+            {% for shared_note in shared_notes %}
+            <li><a href="/shared/{{shared_note.0}}"> Note {{ loop.index }}</a></li>
+            {% endfor %}
+        </ul>
 
-        <form action={{ url_for('logout') }}>
-            <input type="submit" value="Log out" />
-        </form>
+        {% endif %}
+
     </body>
 </html>

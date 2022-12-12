@@ -1,0 +1,56 @@
+<html>
+    <body>
+        <h1>Hello {{ username }}!</h1>
+
+        <form action={{ url_for('render') }} method="post">
+            <label id = "title" for="title">Title: </label>
+            <input id = "title" type="text" name="title"><br>
+            <label for="markdown">Note:</label><br>
+            <textarea id="markdown" name="markdown" rows="20" cols="100"></textarea>
+            <br>
+            <input type="checkbox" id="encryptCheck" name = "encrypt" value="encrypt" onclick="showEncryptForm()">
+            <label for="encrypt"> Encrypt note</label><br>
+            <div id = "encryptForm" style="display:none">
+                <label id = "passLabel" for="password">Password: </label>
+                <input id = "pass" type="password" id="password" name="password"><br>
+                <label id = "passReLabel" for="password">Retype password: </label>
+                <input id = "passRe" type="password" id="password_retyped" name="password_retyped"><br>
+            </div>
+            
+            <br>
+            <input type="submit" value="Submit">
+        </form>
+
+        
+
+        <script>
+            function showEncryptForm() {
+              var checkBox = document.getElementById("encryptCheck");
+              var encryptForm = document.getElementById("encryptForm");
+
+              if (checkBox.checked == true){
+                encryptForm.style.display = "block";
+              } else {
+                encryptForm.style.display = "none";
+              }
+            //   var passLabel = document.getElementById("passLabel");
+            //   var pass = document.getElementById("pass");
+            //   var passReLabel = document.getElementById("passReLabel");
+            //   var passRe = document.getElementById("passRe");
+
+            //   if (checkBox.checked == true){
+            //     passLabel.style.display = "block";
+            //     pass.style.display = "block";
+            //     passReLabel.style.display = "block";
+            //     passRe.style.display = "block";
+            //   } else {
+            //     passLabel.style.display = "none";
+            //     pass.style.display = "none";
+            //     passReLabel.style.display = "none";
+            //     passRe.style.display = "none";
+            //   }
+            }
+        </script>            
+
+    </body>
+</html>

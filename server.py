@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, make_response, redirect
+from flask import Flask, render_template, request, make_response, redirect, url_for
 from flask_login import LoginManager, UserMixin, login_user, logout_user, login_required, current_user
 import markdown
 from collections import deque
 from passlib.hash import sha256_crypt
+
 
 from data_bese import *
 from services import *
@@ -26,7 +27,8 @@ def user_loader(username):
 
     row = get_user_by_username(username)
     try:
-        username, password = row
+        username = row[1]
+        password = row[3]
     except:
         return None
 
@@ -70,16 +72,20 @@ def register():
         username = request.form.get("username")
         password = request.form.get("password")
         password_retyped = request.form.get("password_retyped")
+        email = request.form.get("email")
         
         if password == password_retyped:
-            #sprawdzanie siły hasła
             if not chceck_if_user_exist(username):
                 password_encrypted = hash_password(password)
-                insert_user(username, password_encrypted)
+                insert_user(username, email, password_encrypted)
 
                 user = user_loader(username)
                 login_user(user)
                 return redirect('/start_page')
+            else:
+                return "Taki użytkownik już istnieje", 401
+        else:
+            return "Hasła nie pokrywają sie", 401
 
 
 
@@ -96,19 +102,37 @@ def start():
         username = current_user.id
 
         notes = get_notes_id_by_username(username)
+        shared_notes = get_shared_notes_id_by_username(username)
 
-        return render_template("start_page.html", username=username, notes=notes)
+        return render_template("start_page.html", username=username, notes=notes, shared_notes=shared_notes)
+
+@app.route("/add_note", methods=['GET'])
+@login_required
+def add_note():
+    if request.method == 'GET':
+        return render_template("add_note.html")
 
 @app.route("/render", methods=['POST'])
 @login_required
 def render():
-    md = request.form.get("note","")
+    md = request.form.get("markdown","")
     rendered = markdown.markdown(md)
     username = current_user.id
+    encrypt = request.form.get("encrypt")
+    title = request.form.get("title")
 
-    insert_note(username, rendered)
-
-    return render_template("note.html", rendered=rendered)
+    if encrypt == "encrypt":
+        password = request.form.get("password")
+        password_retyped = request.form.get("password_retyped")
+        if password == password_retyped:
+            encrypted = encrypt_note(rendered, password)
+            insert_note(username, encrypted, "true", title)
+        else:
+            return "Hasła nie pokrywają sie", 401
+    else:
+        insert_note(username, rendered, "false", title)
+        
+    return render_template("rendered.html", rendered=rendered)
 
 @app.route("/render/<rendered_id>")
 @login_required
@@ -116,17 +140,92 @@ def render_old(rendered_id):
     row = get_note_by_id(rendered_id)
 
     try:
-        username, rendered = row
+        username = row[0]
+        encrypted = row[1]
+        rendered = row[2]
+
         if username != current_user.id:
             return "Access to note forbidden", 403
-        return render_template("markdown.html", rendered=rendered)
+        if encrypted == "true":
+            return redirect('/decrypt/' + str(rendered_id))
+        return render_template("note.html", rendered=rendered, encrypted=encrypted, noteid=rendered_id)
     except:
         return "Note not found", 404
+
+@app.route("/shared/<rendered_id>")
+@login_required
+def shared(rendered_id):
+    note = get_note_by_id(rendered_id)
+    info = get_shared_note_info_by_noteid(rendered_id)
+
+    try:
+        rendered = note[2]
+        to_user_id = info[1]
+        to_user = get_username_by_id(to_user_id)
+
+        if to_user != current_user.id:
+            return "Access to note forbidden", 403
+        return render_template("note.html", rendered=rendered, noteid=rendered_id)
+    except:
+        return "Note not found", 404
+
+
+@app.route("/share/<note_id>", methods=['GET'])
+@login_required
+def share(note_id):
+    if request.method == 'GET':
+        return render_template("share_note.html", noteid=note_id)
+
+
+@app.route("/share", methods=['POST'])
+@login_required
+def share_post():
+    note_id = request.form.get("note_id")
+    shared_to = request.form.get("shareto")
+    shared_by = current_user.id
+    rendered = get_note_by_id(note_id)[2]
+
+    shared_to_id = get_user_by_username(shared_to)[0]
+    shared_by_id = get_user_by_username(shared_by)[0]
+
+    insert_shared_note(shared_by_id, shared_to_id, note_id)
+    
+    return render_template("note.html", rendered=rendered, noteid=note_id)
+
+@app.route("/decrypt/<note_id>", methods=["GET","POST"])
+def decrypt(note_id):
+    if request.method == "GET":
+        return render_template("note_decrypt.html", noteid = note_id)
+    if request.method == "POST":
+        password = request.form.get("password")
+
+        row = get_note_by_id(note_id)
+        username = row[0]
+        rendered = row[2]
+
+        decrypted = decrypt_note(rendered, password)
+
+        if username != current_user.id:
+            return "Access to note forbidden", 403
+        return render_template("note.html", rendered=decrypted, encrypted="true", noteid=note_id)
+
+        
+
+@app.route("/delete", methods=['POST'])
+@login_required
+def delete():
+    note_id = request.form.get("note_id")
+    delete_note_by_id(note_id)
+    return redirect(url_for('start'))
+
+
+
+
 
 if __name__ == "__main__":
     print("[*] Init database!")
     create_user_table()
     create_notes_table()
-    
+    create_sharedNotes_table()
 
     app.run("0.0.0.0", 5000)

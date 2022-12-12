@@ -1,0 +1,14 @@
+<html>
+<body>
+  <form action="/decrypt/{{ noteid }}" method="post">
+    <input type="hidden" id="note_id" name="note_id" value= {{ noteid }}>
+    <label for="password">Password: </label><br>
+    <input type="password" id="password" name="password"><br><br>
+    <input type="submit" value="Submit">
+  </form>
+
+    <form action={{ url_for('start') }}>
+        <input type="submit" value="Go back" />
+    </form>
+</body>
+</html>

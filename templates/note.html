@@ -1,9 +1,20 @@
 <html>
 <body>
-    <h1> Your rendered Markdown: </h1>
+    <h1> Your Note: </h1>
     {{ rendered }}
+    <br><br>
+
+    {% if encrypted == 'false' %}
+    <a href="/share/{{ noteid }}"><button>Share note</button></a>
+    <br><br>
+    {% endif %}
+    
+    <form action={{ url_for('delete') }} method="post">
+        <input type="hidden" id="note_id" name="note_id" value= {{ noteid }}>
+        <input type="submit" value="Delete note" />
+    </form>
     <br>
-    <form action={{ url_for('hello') }}>
+    <form action={{ url_for('start') }}>
         <input type="submit" value="Go back" />
     </form>
 </body>
