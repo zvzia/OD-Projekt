@@ -2,7 +2,7 @@
 <body>
     <h1> Your Note: </h1>
     {{ rendered | safe }}
-    <br><br>
+    <br>
 
     {% if encrypted == 'false' %}
     <a href="/share/{{ noteid }}"><button>Share note</button></a>

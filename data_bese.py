@@ -53,17 +53,18 @@ def create_notes_table():
                     username VARCHAR(50) NOT NULL,
                     encrypted TEXT NOT NULL,
                     note VARCHAR(250),
-                    title VARCHAR(50)
+                    title VARCHAR(50),
+                    public TEXT NOT NULL
                 );
                 '''
     cursor.executescript(table_script)
     connection.commit()
     connection.close()
 
-def insert_note(username, note, encrypted, title):
+def insert_note(username, note, encrypted, title, public):
     connection, cursor = connect_to_db()
-    cursor.execute("INSERT INTO Notes(username, note, encrypted, title) VALUES(?, ?, ?, ?)",
-                   (username, note, encrypted, title))
+    cursor.execute("INSERT INTO Notes(username, note, encrypted, title, public) VALUES(?, ?, ?, ?, ?)",
+                   (username, note, encrypted, title, public))
     connection.commit()
     connection.close()
 
@@ -76,7 +77,7 @@ def get_notes_id_by_username(username):
 
 def get_note_by_id(id):
     connection, cursor = connect_to_db()
-    cursor.execute("SELECT username, encrypted, note FROM Notes WHERE id = ?", [id])
+    cursor.execute("SELECT username, encrypted, note, public FROM Notes WHERE id = ?", [id])
     note = cursor.fetchone()
     connection.close()
     return note
@@ -85,6 +86,12 @@ def delete_note_by_id(id):
     connection, cursor = connect_to_db()
     cursor.execute("DELETE FROM Notes WHERE id = ?", [id])
     cursor.execute("DELETE FROM SharedNotes WHERE note_id = ?", [id])
+    connection.commit()
+    connection.close()
+
+def make_note_public(note_id):
+    connection, cursor = connect_to_db()
+    cursor.execute("UPDATE Notes SET public = 'true' WHERE id = ?", [note_id])
     connection.commit()
     connection.close()
 

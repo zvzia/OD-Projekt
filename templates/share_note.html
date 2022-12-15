@@ -1,5 +1,7 @@
 <html>
 <body>
+  <a href="/public_share/{{ noteid }}"><button>Generate share link</button></a>
+  <p>or</p>
   <form action={{ url_for('share_post') }} method="post">
     <input type="hidden" id="note_id" name="note_id" value= {{ noteid }}>
     <label for="shareto">Share no to user: </label><br>

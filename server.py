@@ -142,11 +142,11 @@ def render():
         password_retyped = bleach.clean(request.form.get("password_retyped"))
         if password == password_retyped:
             encrypted = encrypt_note(rendered, password)
-            insert_note(username, encrypted, "true", title)
+            insert_note(username, encrypted, "true", title, "false")
         else:
             return "Hasła nie pokrywają sie", 401
     else:
-        insert_note(username, rendered, "false", title)
+        insert_note(username, rendered, "false", title, "false")
         
     return render_template("rendered.html", rendered=rendered)
 
@@ -207,6 +207,31 @@ def share_post():
     insert_shared_note(shared_by_id, shared_to_id, note_id)
     
     return render_template("note.html", rendered=rendered, noteid=note_id)
+
+@app.route("/public_share/<note_id>", methods=['GET'])
+@login_required
+def public_share(note_id):
+    if request.method == 'GET':
+        make_note_public(note_id)
+        link = "http://127.0.0.1:5000/public_note/" + str(note_id)
+        return "Link to your public note:<br>" + link + "<br> <a href=\"/start_page\"><button>Go back</button></a>", 200
+
+@app.route("/public_note/<rendered_id>")
+def render_public(rendered_id):
+    row = get_note_by_id(rendered_id)
+    public = row[3]
+
+    if public == "false":
+        return "Access to note forbidden", 403
+
+    try:
+        encrypted = row[1]
+        rendered = row[2]
+
+        return render_template("note.html", rendered=rendered, encrypted=encrypted, noteid=rendered_id)
+    except:
+        return "Note not found", 404
+
 
 @app.route("/decrypt/<note_id>", methods=["GET","POST"])
 def decrypt(note_id):
