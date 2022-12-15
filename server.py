@@ -3,7 +3,7 @@ from flask_login import LoginManager, UserMixin, login_user, logout_user, login_
 import markdown
 from collections import deque
 from passlib.hash import sha256_crypt
-
+import bleach
 
 from data_bese import *
 from services import *
@@ -52,8 +52,8 @@ def login():
     if request.method == "GET":
         return render_template("login_page.html")
     if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
+        username = bleach.clean(request.form.get("username"))
+        password = bleach.clean(request.form.get("password"))
         user = user_loader(username)
         if user is None:
             return "Nieprawidłowy login lub hasło", 401
@@ -69,10 +69,10 @@ def register():
     if request.method == "GET":
         return render_template("register_page.html")
     if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-        password_retyped = request.form.get("password_retyped")
-        email = request.form.get("email")
+        username = bleach.clean(request.form.get("username"))
+        password = bleach.clean(request.form.get("password"))
+        password_retyped = bleach.clean(request.form.get("password_retyped"))
+        email = bleach.clean(request.form.get("email"))
         
         if password == password_retyped:
             if not chceck_if_user_exist(username):
@@ -87,6 +87,17 @@ def register():
         else:
             return "Hasła nie pokrywają sie", 401
 
+@app.route("/changepassword", methods=["GET","POST"])
+def changepassword():
+    if request.method == "GET":
+        return render_template("change_password.html")
+    if request.method == "POST":
+        username = bleach.clean(request.form.get("username"))
+        user_info = get_user_by_username(username)
+        if user_info != None:
+            send_email_with_password_change_link(username)
+        
+        return "Chceck your mailbox. <br> <a href=\"/\"><button>Go back</button></a>", 200
 
 
 @app.route("/logout")
@@ -115,15 +126,20 @@ def add_note():
 @app.route("/render", methods=['POST'])
 @login_required
 def render():
-    md = request.form.get("markdown","")
+    allowed_tags = ['p', 'b', 'i', 'u', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6' 'a', 'img']
+    allowed_atributes = {
+        'a': ['href'],
+        'img' : ['src', 'width', 'height']
+    }
+    md = bleach.clean(request.form.get("markdown",""), tags=allowed_tags, attributes=allowed_atributes)
     rendered = markdown.markdown(md)
     username = current_user.id
     encrypt = request.form.get("encrypt")
-    title = request.form.get("title")
+    title = bleach.clean(request.form.get("title"))
 
     if encrypt == "encrypt":
-        password = request.form.get("password")
-        password_retyped = request.form.get("password_retyped")
+        password = bleach.clean(request.form.get("password"))
+        password_retyped = bleach.clean(request.form.get("password_retyped"))
         if password == password_retyped:
             encrypted = encrypt_note(rendered, password)
             insert_note(username, encrypted, "true", title)
@@ -180,8 +196,8 @@ def share(note_id):
 @app.route("/share", methods=['POST'])
 @login_required
 def share_post():
-    note_id = request.form.get("note_id")
-    shared_to = request.form.get("shareto")
+    note_id = bleach.clean(request.form.get("note_id"))
+    shared_to = bleach.clean(request.form.get("shareto"))
     shared_by = current_user.id
     rendered = get_note_by_id(note_id)[2]
 
@@ -197,7 +213,7 @@ def decrypt(note_id):
     if request.method == "GET":
         return render_template("note_decrypt.html", noteid = note_id)
     if request.method == "POST":
-        password = request.form.get("password")
+        password = bleach.clean(request.form.get("password"))
 
         row = get_note_by_id(note_id)
         username = row[0]
@@ -214,7 +230,7 @@ def decrypt(note_id):
 @app.route("/delete", methods=['POST'])
 @login_required
 def delete():
-    note_id = request.form.get("note_id")
+    note_id = bleach.clean(request.form.get("note_id"))
     delete_note_by_id(note_id)
     return redirect(url_for('start'))
 

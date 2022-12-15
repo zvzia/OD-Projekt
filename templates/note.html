@@ -1,7 +1,7 @@
 <html>
 <body>
     <h1> Your Note: </h1>
-    {{ rendered }}
+    {{ rendered | safe }}
     <br><br>
 
     {% if encrypted == 'false' %}
