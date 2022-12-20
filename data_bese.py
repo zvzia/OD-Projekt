@@ -15,7 +15,8 @@ def create_user_table():
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     username VARCHAR(50) NOT NULL UNIQUE,
                     email VARCHAR(100) NOT NULL,
-                    password VARCHAR(150)
+                    password VARCHAR(150),
+                    active TEXT NOT NULL
                 );
                 '''
     cursor.executescript(table_script)
@@ -24,8 +25,8 @@ def create_user_table():
 
 def insert_user(username, email, password):
     connection, cursor = connect_to_db()
-    cursor.execute("INSERT INTO User(username, email, password) VALUES(?, ?, ?)",
-                   (username, email, password))
+    cursor.execute("INSERT INTO User(username, email, password, active) VALUES(?, ?, ?, ?)",
+                   (username, email, password, "true"))
     connection.commit()
     connection.close()
 
@@ -36,13 +37,24 @@ def get_user_by_username(username):
     connection.close()
     return user
 
-
 def get_username_by_id(id):
     connection, cursor = connect_to_db()
     cursor.execute("SELECT username FROM User WHERE id = ?", [id])
     user_id = cursor.fetchone()[0]
     connection.close()
     return user_id
+
+def deactivate_account_by_username(username):
+    connection, cursor = connect_to_db()
+    cursor.execute("UPDATE User SET active = 'false' WHERE username = ?", [username])
+    connection.commit()
+    connection.close()
+
+def activate_account_by_username(username):
+    connection, cursor = connect_to_db()
+    cursor.execute("UPDATE User SET active = 'true' WHERE username = ?", [username])
+    connection.commit()
+    connection.close()
 
 
 #notes table
@@ -134,3 +146,95 @@ def insert_shared_note(shared_by_id, shared_to_id, note_id):
                    (shared_by_id, shared_to_id, note_id))
     connection.commit()
     connection.close()
+
+#failed logins table
+def create_failed_login_table():
+    connection, cursor = connect_to_db()
+    table_script = '''CREATE TABLE IF NOT EXISTS FailedLogin(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id VARCHAR(50) NOT NULL,
+                    date TEXT NOT NULL,
+                    ip TEXT NOT NULL,
+                    device VARCHAR(150) NOT NULL,
+                    location VARCHAR(150) NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES User(id)
+                );
+                '''
+    cursor.executescript(table_script)
+    connection.commit()
+    connection.close()
+
+def insert_failed_login(user_id, date, ip, location, device):
+    connection, cursor = connect_to_db()
+    cursor.execute("INSERT INTO FailedLogin(user_id, date, ip, location, device) VALUES(?, ?, ?, ?, ?)",
+                   (user_id, date, ip, location, device))
+    connection.commit()
+    connection.close()
+
+def get_failed_login_by_userid(user_id):
+    connection, cursor = connect_to_db()
+    cursor.execute("SELECT date, ip, device, location FROM FailedLogin WHERE user_id = ?", [user_id])
+    records = cursor.fetchall()
+    connection.close()
+    return records
+
+
+
+#autorized devices table
+def create_autorized_device_table():
+    connection, cursor = connect_to_db()
+    table_script = '''CREATE TABLE IF NOT EXISTS AutorizedDevice(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id VARCHAR(50) NOT NULL,
+                    location_json VARCHAR(150) NOT NULL,
+                    device VARCHAR(150) NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES User(id)
+                );
+                '''
+    cursor.executescript(table_script)
+    connection.commit()
+    connection.close()
+
+def insert_autorized_device(user_id, location_json, device):
+    connection, cursor = connect_to_db()
+    cursor.execute("INSERT INTO FailedLogin(user_id, location_json, device) VALUES(?, ?, ?)",
+                   (user_id, location_json, device))
+    connection.commit()
+    connection.close()
+
+def get_autorized_devices_by_userid(user_id):
+    connection, cursor = connect_to_db()
+    cursor.execute("SELECT location_json, device FROM AutorizedDevice WHERE user_id = ?", [user_id])
+    devices = cursor.fetchall()
+    connection.close()
+    return devices
+
+
+#tokens table
+def create_token_table():
+    connection, cursor = connect_to_db()
+    table_script = '''CREATE TABLE IF NOT EXISTS Token(
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id VARCHAR(50) NOT NULL,
+                    action VARCHAR(50) NOT NULL,
+                    token VARCHAR(150) NOT NULL,
+                    FOREIGN KEY (user_id) REFERENCES User(id)
+                );
+                '''
+    cursor.executescript(table_script)
+    connection.commit()
+    connection.close()
+
+def insert_token(user_id, action, token):
+    connection, cursor = connect_to_db()
+    cursor.execute("INSERT INTO Token(user_id, action, token) VALUES(?, ?, ?)",
+                   (user_id, action, token))
+    connection.commit()
+    connection.close()
+
+def get_token_info(token):
+    connection, cursor = connect_to_db()
+    cursor.execute("SELECT user_id, action FROM Token WHERE token = ?", [token])
+    devices = cursor.fetchone()
+    connection.close()
+    return devices
