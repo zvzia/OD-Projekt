@@ -32,7 +32,7 @@ def insert_user(username, email, password):
 
 def get_user_by_username(username):
     connection, cursor = connect_to_db()
-    cursor.execute("SELECT id, username, email, password FROM User WHERE username = ?", [username])
+    cursor.execute("SELECT id, username, email, password, active FROM User WHERE username = ?", [username])
     user = cursor.fetchone()
     connection.close()
     return user
@@ -53,6 +53,12 @@ def deactivate_account_by_username(username):
 def activate_account_by_username(username):
     connection, cursor = connect_to_db()
     cursor.execute("UPDATE User SET active = 'true' WHERE username = ?", [username])
+    connection.commit()
+    connection.close()
+
+def change_password_by_username(username, password):
+    connection, cursor = connect_to_db()
+    cursor.execute("UPDATE User SET password = ? WHERE username = ?", [password, username])
     connection.commit()
     connection.close()
 
@@ -186,7 +192,7 @@ def create_autorized_device_table():
     table_script = '''CREATE TABLE IF NOT EXISTS AutorizedDevice(
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     user_id VARCHAR(50) NOT NULL,
-                    location_json VARCHAR(150) NOT NULL,
+                    location VARCHAR(150) NOT NULL,
                     device VARCHAR(150) NOT NULL,
                     FOREIGN KEY (user_id) REFERENCES User(id)
                 );
@@ -195,16 +201,16 @@ def create_autorized_device_table():
     connection.commit()
     connection.close()
 
-def insert_autorized_device(user_id, location_json, device):
+def insert_autorized_device(user_id, location, device):
     connection, cursor = connect_to_db()
-    cursor.execute("INSERT INTO FailedLogin(user_id, location_json, device) VALUES(?, ?, ?)",
-                   (user_id, location_json, device))
+    cursor.execute("INSERT INTO AutorizedDevice(user_id, location, device) VALUES(?, ?, ?)",
+                   (user_id, location, device))
     connection.commit()
     connection.close()
 
 def get_autorized_devices_by_userid(user_id):
     connection, cursor = connect_to_db()
-    cursor.execute("SELECT location_json, device FROM AutorizedDevice WHERE user_id = ?", [user_id])
+    cursor.execute("SELECT location, device FROM AutorizedDevice WHERE user_id = ?", [user_id])
     devices = cursor.fetchall()
     connection.close()
     return devices
@@ -238,3 +244,9 @@ def get_token_info(token):
     devices = cursor.fetchone()
     connection.close()
     return devices
+
+def delete_token_from_db(token):
+    connection, cursor = connect_to_db()
+    cursor.execute("DELETE FROM Token WHERE token = ?", [token])
+    connection.commit()
+    connection.close()

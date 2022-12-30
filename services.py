@@ -8,7 +8,8 @@ import ssl
 from email.message import EmailMessage
 from time import sleep
 from user_agents import parse
-from datetime import datetime
+from datetime import datetime, timedelta 
+from uuid import uuid4
 
 def hash_password(password):
     password_encrypted = sha256_crypt.hash(password)
@@ -43,19 +44,6 @@ def decrypt_note(enc_note, password):
 
     return dec_text.decode()
 
-def send_email_with_password_change_link(receiver_username):
-    user_info = get_user_by_username(receiver_username)
-    email = user_info[2]
-    link = generate_password_change_link()
-
-    subject = "Password change"
-    body = """
-    Hello """ + receiver_username + """
-    You requested password change, you can do it by clicking on this link:
-    """ + link
-
-    send_email(email, subject, body)
-
 
 def send_email(email_receiver, subject, body):
     try:
@@ -80,25 +68,16 @@ def send_email(email_receiver, subject, body):
         print(str(e))
     return False
 
-def generate_password_change_link():
-    return "link"
+def generate_link(action, user_id):
+    token = str(uuid4())
+    insert_token(user_id, action, token)
 
-# def get_reset_token(self, expires=500):
-#     return jwt.encode({'reset_password': self.username,
-#                         'exp':    time() + expires},
-#                         key=os.getenv('SECRET_KEY_FLASK'))
+    link = "http://127.0.0.1:5000/securityaction?action=" + action + "&token="+ token
+    return link
 
-# def verify_reset_token(token):
-#         try:
-#             username = jwt.decode(token,
-#               key=os.getenv('SECRET_KEY_FLASK'))['reset_password']
-#         except Exception as e:
-#             print(e)
-#             return
-#         return User.query.filter_by(username=username).first()
 
 def get_location_info(ip, simple_geoip):
-    sleep(2)
+    sleep(1)
     geoip_data = simple_geoip.get_geoip_data(ip)
     country = geoip_data['location']['country']
 
@@ -108,19 +87,38 @@ def get_location_info(ip, simple_geoip):
         country = 'unknown'
         city = 'unknown'
 
-    location = city + ", " + country
+    location = city + "," + country
+    location = location.replace(' ', '')
     return location
 
 def get_device(ua):
     user_agent = parse(ua)
     device = str(user_agent)
+    device = device.replace(' ', '')
+    device = device.replace('/', ',')
     return device
 
+def send_email_with_password_change_link(receiver_username):
+    user_info = get_user_by_username(receiver_username)
+    user_id = user_info[0]
+    email = user_info[2]
+    link = generate_link("changepassword", user_id)
+
+    subject = "Password change"
+    body = """
+    Hello """ + receiver_username + """
+    You requested password change, you can do it by clicking on this link:
+    """ + link
+
+    send_email(email, subject, body)
+
 def send_email_if_new_device(receiver_username, device, location):
+    isNew = check_if_new_device(receiver_username, device, location)
     user_info = get_user_by_username(receiver_username)
     email = user_info[2]
     user_id = user_info[0]
-    #link = generate_confiramtion_link()
+    link = generate_link("confirmlogin", user_id)
+    link = link + "&device="+ device + "&location=" + location
 
     subject = "Unusual activity"
     body = """
@@ -128,21 +126,21 @@ def send_email_if_new_device(receiver_username, device, location):
     There was unusual activity on your account.
     Someone logged in from """ + device + """ in """ + location + """.
     If this was you please confirm by clicking this link:
-    """ #+ link
+    """ + link
 
     send_email(email, subject, body)
 
 def send_email_and_block_account_if_needed(username, device, location):
     user_id = get_user_by_username(username)[0]
     records = get_failed_login_by_userid(user_id)
+    count = 0
 
-    if( records.len() >= 5):
-        count = 0
+    if( len(records) >= 5):
         for record in records:
             date_str = record[0]
-            date = datetime.strptime(date_str, '%y/%m/%d %H:%M:%S')
-            if(date >= (datetime.now() - datetime.timedelta(minutes=10))):
-                coun += 1
+            date = datetime.strptime(date_str, '%Y-%m-%d %H:%M:%S')
+            if(date >= (datetime.now() - timedelta(minutes=10))):
+                count += 1
 
     if (count >= 5):
         deactivate_account_by_username(username)
@@ -150,13 +148,27 @@ def send_email_and_block_account_if_needed(username, device, location):
         user_info = get_user_by_username(username)
         email = user_info[2]
 
-        #link = generate_activation_link()
+        link = generate_link("activateaccount", user_id)
 
         subject = "Unusual activity"
         body = """
         Hello """ + username + """
         Your account was temporary deactivated due to too many failed login attempts.
-        You can change your password and activate your account here:
-        """ #+ link
+        You can activate your account by changing your password here:
+        """ + link
 
         send_email(email, subject, body)
+
+def check_if_new_device(username, device, location):
+    user_id = get_user_by_username(username)[0]
+    devices = get_autorized_devices_by_userid(user_id)
+    isNew = True
+
+    for deviceindb in devices:
+        if deviceindb[0] == location and deviceindb[1]== device:
+            isNew = False
+            break
+
+    return isNew
+        
+

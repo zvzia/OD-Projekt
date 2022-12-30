@@ -9,6 +9,7 @@ from datetime import datetime
 from flask_simple_geoip import SimpleGeoIP
 from threading import Thread
 from user_agents import parse
+from uuid import uuid4
 
 from data_bese import *
 from services import *
@@ -56,13 +57,9 @@ def request_loader(request):
 
 recent_users = deque(maxlen=3)
 
-@app.route("/test", methods=["GET"])
+@app.route("/test")
 def test():
-    username = current_user.id
-    ip = request.remote_addr
-    location = get_location_info(ip, simple_geoip)
-    device = get_device(request.headers.get('User-Agent'))
-    send_email_and_block_account_if_needed(username, device, location)
+    now = datetime.now()
     return 200
 
 
@@ -77,16 +74,24 @@ def login():
         ip = request.remote_addr
         location = get_location_info(ip, simple_geoip)
         device = get_device(request.headers.get('User-Agent'))
+
         if user is None:
             return "Nieprawidłowy login lub hasło", 401
+        
+        active = get_user_by_username(username)[4]
+        if(active == 'false'):
+            return "Thic account is deactivated, please check your mailbox", 200
         if sha256_crypt.verify(password, user.password):
             login_user(user)
-            #send_email_if_new_device(username, device, location)
+            isNew = check_if_new_device(username, device, location)
+            if isNew:
+                send_email_if_new_device(username, device, location)
+                return "Check your mailbox and confirm login", 200
             return redirect('/start_page')
         else:
             user_id = get_user_by_username(username)[0]
-            insert_failed_login(user_id, datetime.now(), ip, location, device)
-            #send_email_and_block_account_if_needed(username, device, location)
+            insert_failed_login(user_id, str(datetime.now())[:-7], ip, location, device)
+            send_email_and_block_account_if_needed(username, device, location)
             return "Nieprawidłowy login lub hasło", 401
 
 
@@ -132,6 +137,27 @@ def changepasswordrequest():
         
         return "Chceck your mailbox. <br> <a href=\"/\"><button>Go back</button></a>", 200
 
+@app.route("/changepassword", methods=['POST'])
+def changepassword():
+    if request.method == "POST":
+        user_id = bleach.clean(request.form.get("user_id"))
+        password = bleach.clean(request.form.get("password"))
+        password_retyped = bleach.clean(request.form.get("password_retyped"))
+        token = bleach.clean(request.form.get("token"))
+
+        username = get_username_by_id(user_id)
+        
+        if password == password_retyped:
+            if not chceck_if_user_exist(username):
+                return "Taki użytkownik nie istnieje", 401
+            else:
+                password_encrypted = hash_password(password)
+                change_password_by_username(username, password_encrypted)
+                delete_token_from_db(token)
+                activate_account_by_username(username)
+                return "Password has been changed", 200
+        else:
+            return "Hasła nie pokrywają sie", 401
 
 @app.route("/logout")
 def logout():
@@ -299,6 +325,9 @@ def securityaction():
         token  = request.args.get('token', None)
 
         token_info = get_token_info(token)
+        if(token_info == None):
+            return "Invalid request", 404
+
         user_id = token_info[0]
         token_action = token_info[1]
             
@@ -306,14 +335,19 @@ def securityaction():
             return "Invalid request", 404
 
         if(action == "changepassword"):
-           return render_template("change_password_form.html", userid=user_id)
-           
+            return render_template("change_password_form.html", userid=user_id, token=token)
+
         elif(action == "confirmlogin"):
-            print(action)
+            location  = request.args.get('location', None)
+            device  = request.args.get('device', None)
+            insert_autorized_device(user_id, location, device)
+            delete_token_from_db(token)
+            return "You confirmed login", 200
         elif(action == "activateaccount"):
-            print(action)
+            return render_template("change_password_form.html", userid=user_id, token=token)
         else:
             return "Invalid request", 404
+
 
 
 
