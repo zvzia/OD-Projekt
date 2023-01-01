@@ -7,9 +7,7 @@ import bleach
 from time import sleep
 from datetime import datetime
 from flask_simple_geoip import SimpleGeoIP
-from threading import Thread
-from user_agents import parse
-from uuid import uuid4
+import threading
 
 from data_bese import *
 from services import *
@@ -85,13 +83,16 @@ def login():
             login_user(user)
             isNew = check_if_new_device(username, device, location)
             if isNew:
-                send_email_if_new_device(username, device, location)
+                th = threading.Thread(target=send_email_if_new_device, args=(username, device, location))
+                th.start()
                 return "Check your mailbox and confirm login", 200
             return redirect('/start_page')
         else:
+            sleep(2)
             user_id = get_user_by_username(username)[0]
             insert_failed_login(user_id, str(datetime.now())[:-7], ip, location, device)
-            send_email_and_block_account_if_needed(username, device, location)
+            th = threading.Thread(target=send_email_and_block_account_if_needed, args=(username, device, location))
+            th.start()
             return "Nieprawidłowy login lub hasło", 401
 
 
@@ -133,8 +134,8 @@ def changepasswordrequest():
         username = bleach.clean(request.form.get("username"))
         user_info = get_user_by_username(username)
         if user_info != None:
-            send_email_with_password_change_link(username)
-        
+            th = threading.Thread(target=send_email_with_password_change_link, args=(username,))
+            th.start()
         return "Chceck your mailbox. <br> <a href=\"/\"><button>Go back</button></a>", 200
 
 @app.route("/changepassword", methods=['POST'])
@@ -360,4 +361,4 @@ if __name__ == "__main__":
     create_autorized_device_table()
     create_token_table()
 
-    app.run("0.0.0.0", 5000)
+    app.run(ssl_context='adhoc')     #app.run("0.0.0.0", 5000)

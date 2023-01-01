@@ -77,7 +77,7 @@ def generate_link(action, user_id):
 
 
 def get_location_info(ip, simple_geoip):
-    sleep(1)
+    '''
     geoip_data = simple_geoip.get_geoip_data(ip)
     country = geoip_data['location']['country']
 
@@ -86,6 +86,10 @@ def get_location_info(ip, simple_geoip):
     else:
         country = 'unknown'
         city = 'unknown'
+    '''
+    #na potrzeby testowania
+    country = 'unknown'
+    city = 'unknown'
 
     location = city + "," + country
     location = location.replace(' ', '')
@@ -99,6 +103,7 @@ def get_device(ua):
     return device
 
 def send_email_with_password_change_link(receiver_username):
+    sleep(3)
     user_info = get_user_by_username(receiver_username)
     user_id = user_info[0]
     email = user_info[2]
@@ -113,7 +118,7 @@ def send_email_with_password_change_link(receiver_username):
     send_email(email, subject, body)
 
 def send_email_if_new_device(receiver_username, device, location):
-    isNew = check_if_new_device(receiver_username, device, location)
+    sleep(3)
     user_info = get_user_by_username(receiver_username)
     email = user_info[2]
     user_id = user_info[0]
@@ -131,6 +136,7 @@ def send_email_if_new_device(receiver_username, device, location):
     send_email(email, subject, body)
 
 def send_email_and_block_account_if_needed(username, device, location):
+    sleep(3)
     user_id = get_user_by_username(username)[0]
     records = get_failed_login_by_userid(user_id)
     count = 0
