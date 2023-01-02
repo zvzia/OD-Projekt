@@ -8,6 +8,7 @@ from time import sleep
 from datetime import datetime
 from flask_simple_geoip import SimpleGeoIP
 import threading
+from flask_wtf.csrf import CSRFProtect
 
 from data_bese import *
 from services import *
@@ -54,6 +55,9 @@ def request_loader(request):
 
 
 recent_users = deque(maxlen=3)
+
+csrf = CSRFProtect()
+csrf.init_app(app)
 
 @app.route("/test")
 def test():

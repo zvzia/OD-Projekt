@@ -11,6 +11,7 @@
         <input type="password" id="password_retyped" name="password_retyped"><br><br>
         <div id="info" style="color:red"> </div>
         <input type="submit" value="Sign up" id = "submitBtn">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     </form>
     
 

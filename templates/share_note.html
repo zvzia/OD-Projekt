@@ -7,6 +7,7 @@
     <label for="shareto">Share no to user: </label><br>
     <input type="text" id="shareto" name="shareto"><br><br>
     <input type="submit" value="Submit">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   </form>
 
   <br>

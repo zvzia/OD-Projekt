@@ -6,6 +6,7 @@
     <label for="password">Password: </label><br>
     <input type="password" id="password" name="password"><br><br>
     <input type="submit" value="Sign in">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   </form>
 
   <a href="changepasswordrequest"><button>Change password</button></a>
