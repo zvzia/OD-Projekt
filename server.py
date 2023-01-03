@@ -271,8 +271,12 @@ def share(note_id):
         rendered = note_record[2]
         encrypted = note_record[1]
         title = note_record[4]
+
         if(encrypted == 'true'):
             return "You cant share this note", 403
+        
+        if(note_record[0] != current_user.username):
+            return "Access to note forbidden", 403
 
         shared_to_id = get_user_by_username(shared_to)[0]
         shared_by_id = get_user_by_username(shared_by)[0]
@@ -286,9 +290,15 @@ def share(note_id):
 @login_required
 def public_share(note_id):
     if request.method == 'GET':
-        encrypted = get_note_by_id(note_id)[1]
+        note_info = get_note_by_id(note_id)
+        encrypted = note_info[1]
         if(encrypted == 'true'):
             return "You cant share this note", 403
+
+        owner = note_info[0]
+        if(owner != current_user.username):
+            return "Access to note forbidden", 403
+
         make_note_public(note_id)
         link = "http://127.0.0.1:5000/public_note/" + str(note_id)
         return "Link to your public note:<br>" + link + "<br> <a href=\"/start_page\"><button>Go back</button></a>", 200
@@ -317,14 +327,15 @@ def decrypt(note_id):
     if request.method == "POST":
         password = bleach.clean(request.form.get("password"))
 
-        row = get_note_by_id(note_id)
-        username = row[0]
-        rendered = row[2]
+        note_info = get_note_by_id(note_id)
+        owner = note_info[0]
+        rendered = note_info[2]
 
         decrypted = decrypt_note(rendered, password)
 
-        if username != current_user.username:
+        if owner != current_user.username:
             return "Access to note forbidden", 403
+
         return render_template("note.html", rendered=decrypted, encrypted="true", noteid=note_id)
 
         
@@ -334,9 +345,11 @@ def decrypt(note_id):
 def delete():
     note_id = bleach.clean(request.form.get("note_id"))
     note_record = get_note_by_id(note_id)
+
     owner = note_record[0]
     if owner != current_user.username:
         return "Action forbidden", 403
+        
     delete_note_by_id(note_id)
     return redirect(url_for('start'))
 
