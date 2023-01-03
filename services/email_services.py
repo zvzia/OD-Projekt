@@ -1,49 +1,12 @@
 from data_bese import *
-from passlib.hash import sha256_crypt
-from Crypto.Cipher import AES
-from Crypto.Protocol.KDF import PBKDF2
-from Crypto.Random import get_random_bytes
 import smtplib
 import ssl
 from email.message import EmailMessage
 from time import sleep
-from user_agents import parse
 from datetime import datetime, timedelta 
 from uuid import uuid4
 
-def hash_password(password):
-    password_encrypted = sha256_crypt.hash(password)
-    return password_encrypted
-
-def chceck_if_user_exist(username):
-    row = get_user_by_username(username)
-
-    if row == None :
-        return False
-    else:
-        return True
-
-def nullpadding(data, length=16):
-    return data + b"\x00"*(length-len(data) % length) 
-
-
-def encrypt_note(note, password):
-    key = PBKDF2(password, b"salt")
-    cipher = AES.new(key, AES.MODE_EAX)
-    nonce = cipher.nonce
-    enc_note = cipher.encrypt(note.encode()) + nonce
-
-    return enc_note
-
-def decrypt_note(enc_note, password):
-    key = PBKDF2(password, b"salt")
-
-    nonce = enc_note[-16:]
-    cipher = AES.new(key, AES.MODE_EAX, nonce=nonce)
-    dec_text = cipher.decrypt(enc_note[:-16])
-
-    return dec_text.decode()
-
+from services.services import *
 
 def send_email(email_receiver, subject, body):
     try:
@@ -72,35 +35,9 @@ def generate_link(action, user_id):
     token = str(uuid4())
     insert_token(user_id, action, token)
 
-    link = "http://127.0.0.1:5000/securityaction?action=" + action + "&token="+ token
+    link = "https://127.0.0.1:5000/securityaction?action=" + action + "&token="+ token
     return link
 
-
-def get_location_info(ip, simple_geoip):
-    '''
-    geoip_data = simple_geoip.get_geoip_data(ip)
-    country = geoip_data['location']['country']
-
-    if country != 'ZZ':
-        city = geoip_data['location']['city']
-    else:
-        country = 'unknown'
-        city = 'unknown'
-    '''
-    #na potrzeby testowania
-    country = 'unknown'
-    city = 'unknown'
-
-    location = city + "," + country
-    location = location.replace(' ', '')
-    return location
-
-def get_device(ua):
-    user_agent = parse(ua)
-    device = str(user_agent)
-    device = device.replace(' ', '')
-    device = device.replace('/', ',')
-    return device
 
 def send_email_with_password_change_link(receiver_username):
     sleep(3)
@@ -164,17 +101,3 @@ def send_email_and_block_account_if_needed(username, device, location):
         """ + link
 
         send_email(email, subject, body)
-
-def check_if_new_device(username, device, location):
-    user_id = get_user_by_username(username)[0]
-    devices = get_autorized_devices_by_userid(user_id)
-    isNew = True
-
-    for deviceindb in devices:
-        if deviceindb[0] == location and deviceindb[1]== device:
-            isNew = False
-            break
-
-    return isNew
-        
-
