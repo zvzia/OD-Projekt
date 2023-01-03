@@ -95,7 +95,7 @@ def get_notes_id_by_username(username):
 
 def get_note_by_id(id):
     connection, cursor = connect_to_db()
-    cursor.execute("SELECT username, encrypted, note, public FROM Notes WHERE id = ?", [id])
+    cursor.execute("SELECT username, encrypted, note, public, title FROM Notes WHERE id = ?", [id])
     note = cursor.fetchone()
     connection.close()
     return note
@@ -122,6 +122,7 @@ def create_sharedNotes_table():
                     by_user_id INTEGER NOT NULL,
                     to_user_id INTEGER NOT NULL,
                     note_id INTEGER NOT NULL,
+                    title VARCHAR(50),
                     FOREIGN KEY (by_user_id) REFERENCES User(id),
                     FOREIGN KEY (to_user_id) REFERENCES User(id),
                     FOREIGN KEY (note_id) REFERENCES Notes(id)
@@ -134,7 +135,7 @@ def create_sharedNotes_table():
 def get_shared_notes_id_by_username(username):
     connection, cursor = connect_to_db()
     to_user_id = get_user_by_username(username)[0]
-    cursor.execute("SELECT note_id FROM SharedNotes WHERE to_user_id = ?", [to_user_id])
+    cursor.execute("SELECT note_id, title FROM SharedNotes WHERE to_user_id = ?", [to_user_id])
     notes = cursor.fetchall()
     connection.close()
     return notes
@@ -146,10 +147,10 @@ def get_shared_note_info_by_noteid(note_id):
     connection.close()
     return notes
 
-def insert_shared_note(shared_by_id, shared_to_id, note_id):
+def insert_shared_note(shared_by_id, shared_to_id, note_id, title):
     connection, cursor = connect_to_db()
-    cursor.execute("INSERT INTO SharedNotes(by_user_id, to_user_id, note_id) VALUES(?, ?, ?)",
-                   (shared_by_id, shared_to_id, note_id))
+    cursor.execute("INSERT INTO SharedNotes(by_user_id, to_user_id, note_id, title) VALUES(?, ?, ?, ?)",
+                   (shared_by_id, shared_to_id, note_id, title))
     connection.commit()
     connection.close()
 

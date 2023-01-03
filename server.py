@@ -11,7 +11,9 @@ import threading
 from flask_wtf.csrf import CSRFProtect
 
 from data_bese import *
-from services import *
+from services.device_services import *
+from services.email_services import *
+from services.services import *
 
 
 app = Flask(__name__)
@@ -43,6 +45,7 @@ def user_loader(username):
 
     user = User()
     user.id = username
+    user.username = username
     user.password = password
     return user
 
@@ -149,6 +152,13 @@ def changepassword():
         password = bleach.clean(request.form.get("password"))
         password_retyped = bleach.clean(request.form.get("password_retyped"))
         token = bleach.clean(request.form.get("token"))
+        
+        token_info = get_token_info(token)
+        if token_info == None:
+            return "Invalid request", 404
+        if token_info[0] != user_id:
+            return "Invalid request", 404
+
 
         username = get_username_by_id(user_id)
         
@@ -173,7 +183,7 @@ def logout():
 @login_required
 def start():
     if request.method == 'GET':
-        username = current_user.id
+        username = current_user.username
 
         notes = get_notes_id_by_username(username)
         shared_notes = get_shared_notes_id_by_username(username)
@@ -196,7 +206,7 @@ def render():
     }
     md = bleach.clean(request.form.get("markdown",""), tags=allowed_tags, attributes=allowed_atributes)
     rendered = markdown.markdown(md)
-    username = current_user.id
+    username = current_user.username
     encrypt = request.form.get("encrypt")
     title = bleach.clean(request.form.get("title"))
 
@@ -223,7 +233,7 @@ def render_old(rendered_id):
         encrypted = row[1]
         rendered = row[2]
 
-        if username != current_user.id:
+        if username != current_user.username:
             return "Access to note forbidden", 403
         if encrypted == "true":
             return redirect('/decrypt/' + str(rendered_id))
@@ -242,39 +252,43 @@ def shared(rendered_id):
         to_user_id = info[1]
         to_user = get_username_by_id(to_user_id)
 
-        if to_user != current_user.id:
+        if to_user != current_user.username:
             return "Access to note forbidden", 403
-        return render_template("note.html", rendered=rendered, noteid=rendered_id)
+        return render_template("note.html", rendered=rendered, noteid=rendered_id, shared=True)
     except:
         return "Note not found", 404
 
 
-@app.route("/share/<note_id>", methods=['GET'])
+@app.route("/share/<note_id>", methods=["GET","POST"])
 @login_required
 def share(note_id):
     if request.method == 'GET':
         return render_template("share_note.html", noteid=note_id)
+    if request.method == 'POST':
+        shared_to = bleach.clean(request.form.get("shareto"))
+        shared_by = current_user.username
+        note_record = get_note_by_id(note_id)
+        rendered = note_record[2]
+        encrypted = note_record[1]
+        title = note_record[4]
+        if(encrypted == 'true'):
+            return "You cant share this note", 403
 
+        shared_to_id = get_user_by_username(shared_to)[0]
+        shared_by_id = get_user_by_username(shared_by)[0]
 
-@app.route("/share", methods=['POST'])
-@login_required
-def share_post():
-    note_id = bleach.clean(request.form.get("note_id"))
-    shared_to = bleach.clean(request.form.get("shareto"))
-    shared_by = current_user.id
-    rendered = get_note_by_id(note_id)[2]
+        insert_shared_note(shared_by_id, shared_to_id, note_id, title)
+        
+        return render_template("note.html", rendered=rendered, noteid=note_id)
 
-    shared_to_id = get_user_by_username(shared_to)[0]
-    shared_by_id = get_user_by_username(shared_by)[0]
-
-    insert_shared_note(shared_by_id, shared_to_id, note_id)
-    
-    return render_template("note.html", rendered=rendered, noteid=note_id)
 
 @app.route("/public_share/<note_id>", methods=['GET'])
 @login_required
 def public_share(note_id):
     if request.method == 'GET':
+        encrypted = get_note_by_id(note_id)[1]
+        if(encrypted == 'true'):
+            return "You cant share this note", 403
         make_note_public(note_id)
         link = "http://127.0.0.1:5000/public_note/" + str(note_id)
         return "Link to your public note:<br>" + link + "<br> <a href=\"/start_page\"><button>Go back</button></a>", 200
@@ -309,7 +323,7 @@ def decrypt(note_id):
 
         decrypted = decrypt_note(rendered, password)
 
-        if username != current_user.id:
+        if username != current_user.username:
             return "Access to note forbidden", 403
         return render_template("note.html", rendered=decrypted, encrypted="true", noteid=note_id)
 
@@ -319,6 +333,10 @@ def decrypt(note_id):
 @login_required
 def delete():
     note_id = bleach.clean(request.form.get("note_id"))
+    note_record = get_note_by_id(note_id)
+    owner = note_record[0]
+    if owner != current_user.username:
+        return "Action forbidden", 403
     delete_note_by_id(note_id)
     return redirect(url_for('start'))
 

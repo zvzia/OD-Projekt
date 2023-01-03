@@ -23,7 +23,7 @@
         {% if shared_notes|length > 0 %}
         <ul>
             {% for shared_note in shared_notes %}
-            <li><a href="/shared/{{shared_note.0}}"> Note {{ loop.index }}</a></li>
+            <li><a href="/shared/{{shared_note.0}}"> Note: {{ shared_note.1 }}</a></li>
             {% endfor %}
         </ul>
 
