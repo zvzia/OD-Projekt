@@ -1,0 +1,11 @@
+flask
+Flask-Login
+Flask-Simple-GeoIP
+user-agents
+markdown
+bleach
+passlib
+pycryptodome
+secure-smtplib
+pyopenssl
+Flask-WTF

@@ -385,8 +385,6 @@ def securityaction():
             return "Invalid request", 404
 
 
-
-
 if __name__ == "__main__":
     print("[*] Init database!")
     create_user_table()
@@ -396,4 +394,5 @@ if __name__ == "__main__":
     create_autorized_device_table()
     create_token_table()
 
-    app.run(ssl_context='adhoc')     #app.run("0.0.0.0", 5000)
+    #app.run(ssl_context='adhoc')     
+    app.run("0.0.0.0", 5000)
