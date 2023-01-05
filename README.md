@@ -1,4 +1,12 @@
 # Aplikacja do przechowywania notatek
+
+## Uruchamianie aplikacji
+Aplikacja uruchamiana jest za pomocą skryptu run.sh.
+
+Do /etc/hosts należy dodać mapowanie localhost na safenotes.com.
+
+Wtedy aplikacja jest dostępna pod adresem https://safenotes.com
+
 ## Informacje ogólne
 Celem projektu jest stworzenie bezpiecznej aplikacji internetowej, która pozawala na przechowywanie notatek. Notatki mogą przechowywać tylko zalogowani użytkownicy, mogą oni również je udostępniać i szyfrować. 
 
@@ -9,7 +17,7 @@ Aplikacja zostanie napisana w języku **Python** przy pomocy frameworku **Flask*
 
 Baza danych będzie bazą **SQLite**.
 
-Aplikacja zostanie skonteneryzowana przy pomocy **Docker**.
+Aplikacja zostanie skonteneryzowana przy pomocy **Docker** oraz urochamiana na serwerze **Nginx**.
 
 Do szyfrowania notatek zostanie wykorzystana biblioteka **PyCryptodrome** natomiast do szyfrowania haseł **Passlib**.
 
@@ -33,13 +41,15 @@ W przypadku utraty hasła możliwa będzie zmiana hasła poprzez link wysłany n
 
 Przy logowaniu zostanie zastosowane opóźnienie oraz limit prób zalogowania. 
 
-Jeśli wystąpi podejrzanie duża liczba nieudanych prób zalogowania się, zostanie to odnotowane a użytkownik, na którego konto próbowano się zalogować zostanie poinformowany poprzez email.
+Jeśli ktoś zaloguje się z nowego urządzenia będzie musiał potwierdzić logowanie linkiem wysłanym na dres email.
+
+Jeśli wystąpi podejrzanie duża liczba nieudanych prób zalogowania się z tego samego urządzenia, konto zostanie zablokowane z możliwością odblokowania za pomocą linku wysłanego na adres email.
 
 ### 3.	Dodawanie notatek
 
 Aby dodać notatkę użytkownik musi posiadać konto oraz być zalogowany. 
 
-Notatki mogą zostać ostylowane:
+Notatki mogą zostać ostylowane za pomocą Markdown:
 - Pogrubienie, pochylenie, podkreślenie tekstu
 - Dodanie nagłówka
 - Dodanie obrazka z zewnętrznego serwisu
