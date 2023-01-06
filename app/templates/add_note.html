@@ -23,36 +23,8 @@
             <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
         </form>
 
-        
-
-        <script>
-            function showEncryptForm() {
-              var checkBox = document.getElementById("encryptCheck");
-              var encryptForm = document.getElementById("encryptForm");
-
-              if (checkBox.checked == true){
-                encryptForm.style.display = "block";
-              } else {
-                encryptForm.style.display = "none";
-              }
-            //   var passLabel = document.getElementById("passLabel");
-            //   var pass = document.getElementById("pass");
-            //   var passReLabel = document.getElementById("passReLabel");
-            //   var passRe = document.getElementById("passRe");
-
-            //   if (checkBox.checked == true){
-            //     passLabel.style.display = "block";
-            //     pass.style.display = "block";
-            //     passReLabel.style.display = "block";
-            //     passRe.style.display = "block";
-            //   } else {
-            //     passLabel.style.display = "none";
-            //     pass.style.display = "none";
-            //     passReLabel.style.display = "none";
-            //     passRe.style.display = "none";
-            //   }
-            }
-        </script>            
+        <script src="../static/js/encryptnote.js"></script>
+         
 
     </body>
 </html>
