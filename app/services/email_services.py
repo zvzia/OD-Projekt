@@ -35,7 +35,7 @@ def generate_link(action, user_id):
     token = str(uuid4())
     insert_token(user_id, action, token)
 
-    link = "https://127.0.0.1:5000/securityaction?action=" + action + "&token="+ token
+    link = "https://safenotes.com/securityaction?action=" + action + "&token="+ token
     return link
 
 
