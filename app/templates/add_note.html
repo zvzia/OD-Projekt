@@ -1,4 +1,8 @@
 <html>
+    <head>
+        <link rel="stylesheet" type="text/css" href="../static/css/styles.css"/>
+    </head>
+    
     <body>
         <h1>Hello {{ username }}!</h1>
         <p>INFO: To style your note use Markdown</p>
@@ -11,7 +15,7 @@
             <br>
             <input type="checkbox" id="encryptCheck" name = "encrypt" value="encrypt" onclick="showEncryptForm()">
             <label for="encrypt"> Encrypt note</label><br>
-            <div id = "encryptForm" style="display:none">
+            <div id = "encryptForm" class="hiddenform">
                 <label id = "passLabel" for="password">Password: </label>
                 <input id = "pass" type="password" id="password" name="password"><br>
                 <label id = "passReLabel" for="password">Retype password: </label>

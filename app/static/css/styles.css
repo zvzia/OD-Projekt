@@ -1,3 +1,7 @@
 .info{
     color: red;
 }
+
+.hiddenform{
+    display: none;
+}
