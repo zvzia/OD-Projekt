@@ -5,10 +5,9 @@ function showEncryptForm() {
     var encryptForm = document.getElementById("encryptForm");
 
     if (checkBox.checked == true){
-      encryptForm.classList.add = "showform"
-      encryptForm.classList.remove = "hiddenform"
+      encryptForm.className = "showform";
     } else {
-      encryptForm.classList.add = "hiddenform"
-      encryptForm.classList.remove = "showform"
+      encryptForm.className = "hiddenform";
     }
 }
+
