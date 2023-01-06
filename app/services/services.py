@@ -3,6 +3,8 @@ from passlib.hash import sha256_crypt
 from Crypto.Cipher import AES
 from Crypto.Protocol.KDF import PBKDF2
 
+import re
+
 def hash_password(password):
     password_encrypted = sha256_crypt.hash(password)
     return password_encrypted
@@ -36,7 +38,20 @@ def decrypt_note(enc_note, password):
 
     return dec_text.decode()
 
+def checkpasswordrequirements(password):
+    regex = re.compile('[@_!#$%^&*()<>?/\|}{~:]')
 
-
+    if(len(password)<10):
+        return False
+    elif(bool(re.match(r'\w*[A-Z]\w*', password)) == False):
+        return False
+    elif(bool(re.match(r'\w*[a-z]\w*', password)) == False):
+        return False
+    elif(bool(re.match(r'\w*[0-9]\w*', password)) == False):
+        return False
+    elif(regex.search(password) == None):
+        return False
+    else:
+        return True
         
 

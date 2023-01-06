@@ -118,6 +118,9 @@ def register():
         location = get_location_info(ip, simple_geoip)
         device = get_device(request.headers.get('User-Agent'))
         
+        if(checkpasswordrequirements(password)==False):
+            return "Hasł spelniawymagan", 401
+
         if password == password_retyped:
             if not chceck_if_user_exist(username):
                 password_encrypted = hash_password(password)
@@ -221,7 +224,7 @@ def render():
     else:
         insert_note(username, rendered, "false", title, "false")
         
-    return render_template("rendered.html", rendered=rendered)
+    return redirect('/start_page')
 
 @app.route("/render/<rendered_id>")
 @login_required
@@ -300,7 +303,7 @@ def public_share(note_id):
             return "Access to note forbidden", 403
 
         make_note_public(note_id)
-        link = "http://127.0.0.1:5000/public_note/" + str(note_id)
+        link = "https://safenotes.com/public_note/" + str(note_id)
         return "Link to your public note:<br>" + link + "<br> <a href=\"/start_page\"><button>Go back</button></a>", 200
 
 @app.route("/public_note/<rendered_id>")
@@ -393,6 +396,5 @@ if __name__ == "__main__":
     create_failed_login_table()
     create_autorized_device_table()
     create_token_table()
-
-    #app.run(ssl_context='adhoc')     
-    app.run("0.0.0.0", 5000)
+    
+    app.run(host="0.0.0.0", port=5000)

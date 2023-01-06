@@ -1,3 +1,5 @@
+document.getElementById("encryptCheck").addEventListener("click", showEncryptForm);
+
 function showEncryptForm() {
     var checkBox = document.getElementById("encryptCheck");
     var encryptForm = document.getElementById("encryptForm");

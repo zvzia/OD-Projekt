@@ -9,3 +9,4 @@ pycryptodome
 secure-smtplib
 pyopenssl
 Flask-WTF
+uwsgi

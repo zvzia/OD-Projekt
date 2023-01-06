@@ -2,7 +2,7 @@
     <head>
         <link rel="stylesheet" type="text/css" href="../static/css/styles.css"/>
     </head>
-    
+
     <body>
         <h1>Hello {{ username }}!</h1>
         <p>INFO: To style your note use Markdown</p>
@@ -13,7 +13,7 @@
             <label for="markdown">Note:</label><br>
             <textarea id="markdown" name="markdown" rows="20" cols="100"></textarea>
             <br>
-            <input type="checkbox" id="encryptCheck" name = "encrypt" value="encrypt" onclick="showEncryptForm()">
+            <input type="checkbox" id="encryptCheck" name = "encrypt" value="encrypt">
             <label for="encrypt"> Encrypt note</label><br>
             <div id = "encryptForm" class="hiddenform">
                 <label id = "passLabel" for="password">Password: </label>
