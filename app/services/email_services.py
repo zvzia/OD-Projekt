@@ -11,7 +11,7 @@ from services.services import *
 def send_email(email_receiver, subject, body):
     try:
         email_sender = "appsafenotes@gmail.com"
-        email_password = "fnqbxqqdvpqpnnno"
+        email_password = "" #dodac
         
         # create email
         msg = EmailMessage()
