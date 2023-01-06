@@ -3,8 +3,10 @@ function showEncryptForm() {
     var encryptForm = document.getElementById("encryptForm");
 
     if (checkBox.checked == true){
-      encryptForm.style.display = "block";
+      encryptForm.classList.add = "showform"
+      encryptForm.classList.remove = "hiddenform"
     } else {
-      encryptForm.style.display = "none";
+      encryptForm.classList.add = "hiddenform"
+      encryptForm.classList.remove = "showform"
     }
 }
