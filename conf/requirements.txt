@@ -11,3 +11,4 @@ pyopenssl
 Flask-WTF
 uWSGI
 Werkzeug
+python-dotenv
