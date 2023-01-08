@@ -3,9 +3,7 @@
 ## Uruchamianie aplikacji
 Aplikacja uruchamiana jest za pomocą skryptu run.sh.
 
-Do /etc/hosts należy dodać mapowanie localhost na safenotes.com.
-
-Wtedy aplikacja jest dostępna pod adresem https://safenotes.com
+Po uruchomieniu aplikacja jest dostępna pod adresem https://safenotes.com
 
 ## Informacje ogólne
 Celem projektu jest stworzenie bezpiecznej aplikacji internetowej, która pozawala na przechowywanie notatek. Notatki mogą przechowywać tylko zalogowani użytkownicy, mogą oni również je udostępniać i szyfrować. 
