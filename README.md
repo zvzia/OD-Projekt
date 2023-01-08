@@ -31,8 +31,6 @@ Hasło powinno:
 -	Zawierać co najmniej jedną cyfrę
 -	Zawierać co najmniej jeden znak specjalny
 
-Sprawdzane będzie również czy hasło znajduje się na liście najczęściej używanych haseł.
-
 W przypadku utraty hasła możliwa będzie zmiana hasła poprzez link wysłany na adres email.
 
 ### 2.	Logowanie
