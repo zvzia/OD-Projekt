@@ -318,7 +318,7 @@ def render_public(rendered_id):
         encrypted = row[1]
         rendered = row[2]
 
-        return render_template("note.html", rendered=rendered, encrypted=encrypted, noteid=rendered_id)
+        return render_template("note.html", rendered=rendered, encrypted=encrypted, noteid=rendered_id, shared=True)
     except:
         return "Note not found", 404
 

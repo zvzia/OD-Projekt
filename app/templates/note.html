@@ -4,7 +4,7 @@
     {{ rendered | safe }}
     <br>
 
-    {% if encrypted == 'false' %}
+    {% if encrypted == 'false' and shared != True %}
     <a href="/share/{{ noteid }}"><button>Share note</button></a>
     <br><br>
     {% endif %}
