@@ -3,7 +3,7 @@ from user_agents import parse
 
 
 def get_location_info(ip, simple_geoip):
-    '''
+    
     geoip_data = simple_geoip.get_geoip_data(ip)
     country = geoip_data['location']['country']
 
@@ -12,10 +12,10 @@ def get_location_info(ip, simple_geoip):
     else:
         country = 'unknown'
         city = 'unknown'
-    '''
+    
     #na potrzeby testowania
-    country = 'unknown'
-    city = 'unknown'
+    #country = 'unknown'
+    #city = 'unknown'
 
     location = city + "," + country
     location = location.replace(' ', '')

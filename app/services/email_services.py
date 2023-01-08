@@ -1,3 +1,5 @@
+
+import os
 from data_bese import *
 import smtplib
 import ssl
@@ -11,7 +13,7 @@ from services.services import *
 def send_email(email_receiver, subject, body):
     try:
         email_sender = "appsafenotes@gmail.com"
-        email_password = "" #dodac
+        email_password = os.environ.get("EMAIL_PASS")
         
         # create email
         msg = EmailMessage()
