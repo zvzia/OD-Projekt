@@ -1,5 +1,6 @@
 from sqlite3 import connect
 from sqlite3.dbapi2 import Cursor
+from uuid import uuid4
 
 DB_NAME = "notes_app.db"  
 
@@ -72,7 +73,8 @@ def create_notes_table():
                     encrypted TEXT NOT NULL,
                     note VARCHAR(250),
                     title VARCHAR(50),
-                    public TEXT NOT NULL
+                    public TEXT NOT NULL,
+                    uuid VARCHAR(40) NOT NULL UNIQUE
                 );
                 '''
     cursor.executescript(table_script)
@@ -80,9 +82,10 @@ def create_notes_table():
     connection.close()
 
 def insert_note(username, note, encrypted, title, public):
+    uuid = str(uuid4())
     connection, cursor = connect_to_db()
-    cursor.execute("INSERT INTO Notes(username, note, encrypted, title, public) VALUES(?, ?, ?, ?, ?)",
-                   (username, note, encrypted, title, public))
+    cursor.execute("INSERT INTO Notes(username, note, encrypted, title, public, uuid) VALUES(?, ?, ?, ?, ?, ?)",
+                   (username, note, encrypted, title, public, uuid))
     connection.commit()
     connection.close()
 
@@ -95,7 +98,7 @@ def get_notes_id_by_username(username):
 
 def get_note_by_id(id):
     connection, cursor = connect_to_db()
-    cursor.execute("SELECT username, encrypted, note, public, title FROM Notes WHERE id = ?", [id])
+    cursor.execute("SELECT username, encrypted, note, public, title, uuid FROM Notes WHERE id = ?", [id])
     note = cursor.fetchone()
     connection.close()
     return note
@@ -112,6 +115,13 @@ def make_note_public(note_id):
     cursor.execute("UPDATE Notes SET public = 'true' WHERE id = ?", [note_id])
     connection.commit()
     connection.close()
+
+def get_note_by_uuid(uuid):
+    connection, cursor = connect_to_db()
+    cursor.execute("SELECT username, encrypted, note, public, title FROM Notes WHERE uuid = ?", [uuid])
+    note = cursor.fetchone()
+    connection.close()
+    return note
 
 
 #shared notes table
@@ -147,10 +157,10 @@ def get_shared_note_info_by_noteid(note_id):
     connection.close()
     return notes
 
-def insert_shared_note(shared_by_id, shared_to_id, note_id, title):
+def insert_shared_note(shared_by_id, shared_to_id, note_id, title, ):
     connection, cursor = connect_to_db()
     cursor.execute("INSERT INTO SharedNotes(by_user_id, to_user_id, note_id, title) VALUES(?, ?, ?, ?)",
-                   (shared_by_id, shared_to_id, note_id, title))
+                   (shared_by_id, shared_to_id, note_id, title, ))
     connection.commit()
     connection.close()
 

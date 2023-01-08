@@ -9,6 +9,7 @@ from datetime import datetime
 from flask_simple_geoip import SimpleGeoIP
 import threading
 from flask_wtf.csrf import CSRFProtect
+from uuid import uuid4
 
 from data_bese import *
 from services.device_services import *
@@ -302,13 +303,14 @@ def public_share(note_id):
         if(owner != current_user.username):
             return "Access to note forbidden", 403
 
+        note_uuid = note_info[5]
         make_note_public(note_id)
-        link = "https://safenotes.com/public_note/" + str(note_id)
+        link = "https://safenotes.com/public_note/" + str(note_uuid)
         return "Link to your public note:<br>" + link + "<br> <a href=\"/start_page\"><button>Go back</button></a>", 200
 
-@app.route("/public_note/<rendered_id>")
-def render_public(rendered_id):
-    row = get_note_by_id(rendered_id)
+@app.route("/public_note/<uuid>")
+def render_public(uuid):
+    row = get_note_by_uuid(uuid)
     public = row[3]
 
     if public == "false":
@@ -318,7 +320,7 @@ def render_public(rendered_id):
         encrypted = row[1]
         rendered = row[2]
 
-        return render_template("note.html", rendered=rendered, encrypted=encrypted, noteid=rendered_id, shared=True)
+        return render_template("note.html", rendered=rendered, encrypted=encrypted, shared=True)
     except:
         return "Note not found", 404
 
