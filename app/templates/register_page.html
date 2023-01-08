@@ -13,6 +13,12 @@
         <label for="password">Retype password: </label><br>
         <input type="password" id="password_retyped" name="password_retyped"><br><br>
         <div id="info" class="info"> </div>
+        <p>Your password should contain:</p>
+        <p id="length" class="infoRed">- At least 10 characters</p> <br>
+        <p id="upperCase" class="infoRed">- At least one uppercase letter</p> <br>
+        <p id="lowerCase" class="infoRed">- At least one lowercase letter</p> <br>
+        <p id="numbers" class="infoRed">- At least one number</p> <br>
+        <p id="specialChar" class="infoRed">- At least one special character</p><br>
         <input type="submit" value="Sign up" id = "submitBtn">
         <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
     </form>

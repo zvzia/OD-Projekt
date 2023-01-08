@@ -2,6 +2,16 @@
     color: red;
 }
 
+.infoRed{
+    display: inline;
+    color: red;
+}
+
+.infoGreen{
+    display: inline;
+    color: green;
+}
+
 .hiddenform{
     display: none;
 }

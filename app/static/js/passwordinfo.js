@@ -14,39 +14,48 @@ const password = document.getElementById('password');
         if(document.getElementById('username').value == "" || document.getElementById('email').value == "" || document.getElementById('password').value == ""){
             info.innerHTML = "You have to insert all information";
             document.getElementById("submitBtn").disabled = true;
-        }else if(passwordVal.length < 10){ //dlugosc
-            info.innerHTML = "Your password should contain at least 10 characters";
-                document.getElementById("submitBtn").disabled = true;
-        }else if(!/[A-Z]/.test(passwordVal)){ //duze litery
-            info.innerHTML = "Your password should contain at least one uppercase letter";
-            document.getElementById("submitBtn").disabled = true;
-        }else if(!/[a-z]/.test(passwordVal)){ // male litery
-            info.innerHTML = "Your password should contain at least one lowercase letter";
-            document.getElementById("submitBtn").disabled = true;
-        }else if(!/\d/.test(passwordVal)){ //cyfry
-            info.innerHTML = "Your password should contain at least one number";
-            document.getElementById("submitBtn").disabled = true;
-        }else if(!special.test(passwordVal)){ //znaki spcjalne
-            info.innerHTML = "Your password should contain at least one special character";
-            document.getElementById("submitBtn").disabled = true;
         }else if(document.getElementById('password').value != document.getElementById('password_retyped').value){
             info.innerHTML = "Password doesnt match";
             document.getElementById("submitBtn").disabled = true;
-        }else{
-            info.innerHTML = "";
-            document.getElementById("submitBtn").disabled = false;
-        }
-    }
-
-    const inputHandlerUserInfo = function(e) {
-        if(document.getElementById('username').value == "" || document.getElementById('email').value == ""){
-            info.innerHTML = "You have to insert all information";
+        }else if(passwordVal.length < 10 || !/[A-Z]/.test(passwordVal) || !/[a-z]/.test(passwordVal) || !/\d/.test(passwordVal) || !special.test(passwordVal)){
             document.getElementById("submitBtn").disabled = true;
         }else{
             info.innerHTML = "";
             document.getElementById("submitBtn").disabled = false;
         }
+
+        if(passwordVal.length < 10){ //dlugosc
+            document.getElementById("length").className = "infoRed";
+        }else {
+            document.getElementById("length").className = "infoGreen";
+        }
+
+        if(!/[A-Z]/.test(passwordVal)){ //duze litery
+            document.getElementById("upperCase").className = "infoRed";
+        }else {
+            document.getElementById("upperCase").className = "infoGreen";
+        }
+
+        if(!/[a-z]/.test(passwordVal)){ // male litery
+            document.getElementById("lowerCase").className = "infoRed";
+        }else {
+            document.getElementById("lowerCase").className = "infoGreen";
+        }
+
+        if(!/\d/.test(passwordVal)){ //cyfry
+            document.getElementById("numbers").className = "infoRed";
+        }else {
+            document.getElementById("numbers").className = "infoGreen";
+        }
+
+        if(!special.test(passwordVal)){ //znaki spcjalne
+            document.getElementById("specialChar").className = "infoRed";
+        }else {
+            document.getElementById("specialChar").className = "infoGreen";
+        }
+        
     }
+
 
     username.addEventListener('input', inputHandler);
     email.addEventListener('input', inputHandler);
