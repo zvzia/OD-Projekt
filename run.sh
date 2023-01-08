@@ -1,5 +1,13 @@
 #!/bin/sh
 
+if [ $# -ne 1 ]
+then
+	echo "You need to pass email password as argument"
+	exit
+fi
+
+echo "EMAIL_PASS=\"$1\"" > conf/.env
+
 matches="$(grep "safenotes.com"  /etc/hosts)"
 n=${#matches}
 
@@ -10,8 +18,5 @@ else
 	echo "Dopisywanie domeny do /ect/hosts"
 	echo "127.0.0.1	safenotes.com" >> /etc/hosts
 fi
-
-openssl req -x509 -nodes -newkey rsa:2048 -keyout key.pem -out cert.pem -sha256 -days 365 \
-    -subj "/C=PL/ST=Warsaw/L=Warsaw/O=Zuzanna/OU=IT/CN=safenotes.com"
 
 docker-compose up --build

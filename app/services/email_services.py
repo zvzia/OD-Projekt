@@ -1,5 +1,3 @@
-
-import os
 from data_bese import *
 import smtplib
 import ssl
@@ -10,10 +8,13 @@ from uuid import uuid4
 
 from services.services import *
 
+import dotenv, os
+dotenv.load_dotenv(verbose=True)
+
 def send_email(email_receiver, subject, body):
     try:
         email_sender = "appsafenotes@gmail.com"
-        email_password = os.environ.get("EMAIL_PASS")
+        email_password = os.getenv("EMAIL_PASS")
         
         # create email
         msg = EmailMessage()

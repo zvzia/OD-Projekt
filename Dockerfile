@@ -10,11 +10,9 @@ COPY ./app /app
 WORKDIR /app
 
 COPY conf/requirements.txt .
-#RUN python -m pip install -r requirements.txt
 COPY conf/uwsgi.ini .
 COPY conf/start.sh .
-COPY key.pem /root/ssl/key.pem
-COPY cert.pem /root/ssl/cert.pem
+RUN mkdir -p /root/ssl
 
 
 RUN apt-get clean \
@@ -22,18 +20,20 @@ RUN apt-get clean \
 
 RUN apt-get -y install nginx \
     && apt-get -y install python3-dev \
-    && apt-get -y install build-essential
+    && apt-get -y install build-essential\
+    && apt-get -y install openssl
 
 RUN python -m pip install -r requirements.txt
 
+RUN openssl req -x509 -nodes -newkey rsa:2048 -keyout key.pem -out cert.pem -sha256 -days 365 \
+    -subj "/C=PL/ST=Warsaw/L=Warsaw/O=Zuzanna/OU=IT/CN=safenotes.com"
+RUN cp key.pem /root/ssl/key.pem
+RUN cp cert.pem /root/ssl/cert.pem
 
 COPY conf/nginx.conf /etc/nginx/
-#COPY conf/default.conf /etc/nginx/conf.d/default.conf
 
 RUN chmod +x ./start.sh
 RUN chmod 777 ./notes_app.db
 RUN chmod 777 ../app
-#RUN chown www-data:www-data /notes_app.db
-#RUN chown www-data:www-data ../app
 
 CMD ["./start.sh"]
