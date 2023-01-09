@@ -1,0 +1,47 @@
+1. Utworzenie konta
+
+2. Zalogowanie się
+
+3. Stworzenie notatki:
+# Nagłówek 1
+## Nagłówek 2
+### Nagłówek 3
+
+Paragraf  
+Kolejna linijka
+
+**Pogrubienie** *Pochylenie* ***Razem***
+
+<u>Podkreślenie przez html<u>
+
+Lista:
+
+1. First item
+2. Second item
+3. Third item
+
+Lista 2:
+
+* First item
+* Second item
+* Third item
+
+![Obrazek](https://st3.depositphotos.com/5128723/18713/v/450/depositphotos_187134796-stock-illustration-heart-icon-outline.jpg)
+
+[Link](https://github.com/zvzia)
+
+4. Stworzenie notatki zaszyfrowanej
+
+5. Udostępnienie notatki innemu urzytkownikowi (zuzia)
+
+6. Udostępnienie notatki publicznie
+
+7. Wylogowanie się i pokazanie publicznej notatki
+
+8. Zalogowanie się na zuzia (potwierdzenie logowania), wejscie drugi raz w link
+
+9. Wyświetlenie udostępnionej notatki
+
+10. Resetowanie hasla, ponowne wejscie w link
+
+11. Zablokowanie konta
