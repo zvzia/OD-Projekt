@@ -311,12 +311,12 @@ def public_share(note_id):
 @app.route("/public_note/<uuid>")
 def render_public(uuid):
     row = get_note_by_uuid(uuid)
-    public = row[3]
-
-    if public == "false":
-        return "Access to note forbidden", 403
 
     try:
+        public = row[3]
+
+        if public == "false":
+            return "Access to note forbidden", 403
         encrypted = row[1]
         rendered = row[2]
 
