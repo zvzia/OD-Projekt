@@ -1,7 +1,8 @@
 # Aplikacja do przechowywania notatek
 
 ## Uruchamianie aplikacji
-Aplikacja uruchamiana jest za pomocą skryptu run.sh.
+Aplikacja uruchamiana jest za pomocą skryptu run.sh.  
+Skrypt przyjmuje jeden argument który jest hasłem do adresu e-mail, z którego wysyłane są maile do użytkowników. (Ze względów bezpieczeństwa hasło podane jest tylko dla prowadzącego zajęcia na isodzie wraz z linkiem do repozytorium)
 
 Po uruchomieniu aplikacja jest dostępna pod adresem https://safenotes.com
 
